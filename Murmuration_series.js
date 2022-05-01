@@ -14,12 +14,12 @@ presets = { bluePink: {
 rainbow: {
   numberOfBirds: 300,
   nrLines: 5,
-  bgColor: '#F0F0F0',
+  bgColor: '#110303',
   lineColor: ['#4370D2','#7C9C6C','#E7B940','#BA372A','#E4AF67'],
   birdColor: '#333333',
   fractalStrength: 30,
   fractalZoom: 10,
-  maxStrokeWidth: 10,
+  maxStrokeWidth: 1,
   maxStrokePow: 50,
   dashed: false,
   fancyLine: true
@@ -77,6 +77,10 @@ var fancyLine = preset.fancyLine;
 var fr = 30;
 var murmur = true;
 
+var equality = 100;
+var equalityMin = -100;
+var equalityMax = 100;
+
 var maxspeed = "1";
 var maxforce = "0.025";
 var desiredseparation = 100;
@@ -112,7 +116,7 @@ function setup() {
   frameRate(fr);
   
   var gui = createGui('My awesome GUI');
-  gui.addGlobals('nrLines', 'numberOfBirds', '_background', 'bgColor', '_line', 'maxspeed', 'maxforce', 'desiredseparation');
+  gui.addGlobals('nrLines', 'numberOfBirds', '_background', 'bgColor', '_line', 'maxspeed', 'maxforce', 'desiredseparation', 'equality', 'equalityDirection');
   if(typeof lineColor === 'string') gui.addGlobals('lineColor');
   gui.addGlobals('myTheme', '_bird', 'birdColor', 'fr', 'saveImage', 'dashed', 'fancyLine', 'maxStrokeWidth', 'maxStrokePow', 'minStrokeWidth', 'fractal', 'fractalStrength', 'fractalZoom', 'disco', 'pause', 'murmur', 'showDirection', 'maxLineLength');
   lineColor = preset.lineColor
@@ -139,7 +143,6 @@ var center;
 
 
 function draw() {
-  console.log(lastTheme, myTheme);
   if(lastTheme != myTheme) {
     preset = presets[myTheme];
 

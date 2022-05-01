@@ -33,6 +33,7 @@ class Sterling {
     }
   
     run(sterlings) {
+      this.updateEquality();
       this.resetLineColor();
       if (!pause) {
           if (murmur) this.murmuration(sterlings);
@@ -51,7 +52,6 @@ class Sterling {
       noFill();
       var strokeWidth = maxStrokeWidth*pow(this.myRandom,50)+parseFloat(minStrokeWidth);
       strokeWeight(strokeWidth);
-      console.log(dashed);
       if(dashed) {
         if(strokeWidth > .01){
             drawingContext.setLineDash([strokeWidth*2, strokeWidth*4]);
@@ -93,7 +93,7 @@ class Sterling {
     // We accumulate a new acceleration each time based on three rules
     murmuration(sterlings) {
       this.sep = this.separate(sterlings);   // Separation
-      this.sep.mult(this.myRandom*3);
+      this.sep.mult(this.myWeightedRandom*3);
       
       this.applyForce(this.sep);
     }
@@ -108,13 +108,22 @@ class Sterling {
         }
       }
     };
+
+    updateEquality(){
+      if(equality >= 0) {
+        this.myWeightedRandom = 1- (this.myRandom) * (equality/100)
+        
+      } else {
+        this.myWeightedRandom = 1+ (1-this.myRandom) * (equality/100)
+      }
+    }
   
     // Method to update pos
     update() {
       // Update velocity
       this.velocity.add(this.acceleration);
       // Limit speed
-      this.velocity.limit(this.myRandom+.5);
+      this.velocity.limit(this.myWeightedRandom+.5);
       
       this.pos.add(this.velocity);
       // Reset accelertion to 0 each cycle
@@ -155,7 +164,7 @@ class Sterling {
       var _noise = (noise(x,y,z)-.5)*2
       // _noise = pow(_noise, 2)
   
-      this.velocity.rotate( _noise*fractalStrength/30 );
+      this.velocity.rotate( _noise*fractalStrength/30 * (this.myWeightedRandom)) ;
     }
   
     seek(target) {
@@ -257,9 +266,7 @@ class Sterling {
   
       if (countAlign>0 ) {
         sum.div(countAlign);
-        // First two lines of code below could be condensed with new PVector setMag() method
-        // Not using this method until Processing.js catches up
-        // sum.setMag(maxspeed);
+        sum.setMag(maxspeed);
   
         // Implement Reynolds: Steering = Desired - Velocity
         // sum.normalize();

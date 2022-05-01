@@ -13,7 +13,6 @@ class Murmuration {
   run() {
     time++;
 
-    console.log(mouseX,(mouseX - displayWidth/2))
     //center = createVector(width/2+sin(this.index%2*4*PI/4+time/100)*100*sin(time/20), height/2+cos(this.index%2*4*PI/4+time/100)*100*cos(time/20));
 
     
