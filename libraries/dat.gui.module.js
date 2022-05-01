@@ -11,12 +11,6 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(factory((global.dat = {})));
-}(this, (function (exports) { 'use strict';
-
 function ___$insertStyle(css) {
   if (!css) {
     return;
@@ -1187,7 +1181,6 @@ function map(v, i1, i2, o1, o2) {
   return o1 + (o2 - o1) * ((v - i1) / (i2 - i1));
 }
 var NumberControllerSlider = function (_NumberController) {
-  console.log("hello")
   inherits(NumberControllerSlider, _NumberController);
   function NumberControllerSlider(object, property, min, max, step, disableMidi) {
     classCallCheck(this, NumberControllerSlider);
@@ -2623,14 +2616,6 @@ var index = {
   GUI: GUI$1
 };
 
-exports.color = color;
-exports.controllers = controllers;
-exports.dom = dom$1;
-exports.gui = gui;
-exports.GUI = GUI$1;
-exports['default'] = index;
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-})));
-//# sourceMappingURL=dat.gui.js.map
+export { color, controllers, dom$1 as dom, gui, GUI$1 as GUI };
+export default index;
+//# sourceMappingURL=dat.gui.module.js.map

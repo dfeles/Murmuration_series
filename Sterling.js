@@ -7,7 +7,7 @@ class Sterling {
     //var acceleration;
     //var r;
     //var maxforce;    // Maximum steering force
-    //var maxspeed;    // Maximum speed
+    //var parameters.sterling.maxspeed;    // Maximum speed
       
     constructor(x, y, i) {
       
@@ -35,24 +35,23 @@ class Sterling {
     run(sterlings) {
       this.updateEquality();
       this.resetLineColor();
-      if (!pause) {
-          if (murmur) this.murmuration(sterlings);
+      if (!parameters.paused) {
+          if (parameters.boid.murmur) this.murmuration(sterlings);
           this.update();
       }
       //borders();
-      if(_bird) {
+      if(parameters.sterling.bird) {
         this.render();
       }
     }
     
     renderLine() {
       
-      if (this.pastposs.length<10) console.log("igen")
 
       noFill();
-      var strokeWidth = maxStrokeWidth*pow(this.myRandom,50)+parseFloat(minStrokeWidth);
+      var strokeWidth = parameters.boid.strokeWidthMax*pow(this.myRandom,50)+parameters.boid.strokeWidthMin;
       strokeWeight(strokeWidth);
-      if(dashed) {
+      if(parameters.boid.dashed) {
         if(strokeWidth > .01){
             drawingContext.setLineDash([strokeWidth*2, strokeWidth*4]);
         } else {
@@ -70,11 +69,11 @@ class Sterling {
       stroke(this.strokeColor)
       this.pastposs.forEach(function(p){
         if(lastP){
-          if(dashed || !fancyLine) {
+          if(parameters.boid.dashed || !parameters.boid.fancy) {
             vertex(p.x, p.y);
-          } else if (fancyLine) {
+          } else if (parameters.boid.fancy) {
             stroke(color(red(strokeColor) , green(strokeColor), blue(strokeColor)));
-            var noiseRatio = 10 * (fractalZoom/30)
+            var noiseRatio = 10 * (parameters.boid.fractalZoom/30)
             strokeWeight(strokeWidth * (t/100))
             line(lastP.x, lastP.y, p.x, p.y)
           }
@@ -100,7 +99,7 @@ class Sterling {
   
     resetLineColor() {
       if(typeof lineColor === 'string') {
-        this.strokeColor = lineColor
+        this.strokeColor = parameters.boid.strokeColor
       } else {
         this.strokeColor = lineColor[(this.index + floor(this.myRandom*10)) % lineColor.length]
         if(disco) {
@@ -110,6 +109,7 @@ class Sterling {
     };
 
     updateEquality(){
+      var equality = parameters.boid.equality
       if(equality >= 0) {
         this.myWeightedRandom = 1- (this.myRandom) * (equality/100)
         
@@ -135,9 +135,9 @@ class Sterling {
       this.acceleration = dir;                              
   
       this.velocity.add(this.acceleration);
-      this.velocity.limit(maxspeed);
+      this.velocity.limit(parameters.sterling.maxspeed);
       
-      if(fractal) this.addPerlin()
+      if(parameters.boid.fractal) this.addPerlin()
       this.pos.add(this.velocity);
       
       
@@ -145,9 +145,10 @@ class Sterling {
   
       if (this.index % 1 == 0) {
         append(this.pastposs, this.pos.copy());
-        if (this.pastposs.length > maxLineLength) {
+        if (this.pastposs.length > parameters.boid.lineLength) {
           this.pastposs.splice(0,1);
         }
+        this.pastposs.splice(0,(this.pastposs.length-parameters.boid.lineLength));
       }
       var n = this.pastposs.length;
       this.pastposs.forEach(function(p){
@@ -156,22 +157,22 @@ class Sterling {
     }
   
     addPerlin() {
-      var x = this.pos.x/10 * (fractalZoom/30)
-      var y = this.pos.y/10 * (fractalZoom/30)
+      var x = this.pos.x/10 * (parameters.boid.fractalZoom/30)
+      var y = this.pos.y/10 * (parameters.boid.fractalZoom/30)
   
       var z = time/10
   
       var _noise = (noise(x,y,z)-.5)*2
       // _noise = pow(_noise, 2)
   
-      this.velocity.rotate( _noise*fractalStrength/30 * (this.myWeightedRandom)) ;
+      this.velocity.rotate( _noise*parameters.boid.fractalStrength/30 * (this.myWeightedRandom)) ;
     }
   
     seek(target) {
       var desired = p5.Vector.sub(target, this.pos);  // A vector pointing from the pos to the target
       // Scale to maximum speed
       desired.normalize();
-      desired.mult(maxspeed);
+      desired.mult(parameters.sterling.maxspeed);
   
   
       // Steering = Desired minus Velocity
@@ -188,7 +189,7 @@ class Sterling {
       noFill();
       strokeWeight(1)
       stroke(this.strokeColor);
-      stroke(birdColor);
+      stroke(parameters.sterling.birdColor);
       push();
       translate(this.pos.x, this.pos.y);
       rotate(theta);
@@ -266,11 +267,11 @@ class Sterling {
   
       if (countAlign>0 ) {
         sum.div(countAlign);
-        sum.setMag(maxspeed);
+        sum.setMag(parameters.sterling.maxspeed);
   
         // Implement Reynolds: Steering = Desired - Velocity
         // sum.normalize();
-        sum.mult(maxspeed);
+        sum.mult(parameters.sterling.maxspeed);
         var steer2 = p5.Vector.sub(sum, this.velocity);
         steer2.limit(maxforce);
   
@@ -287,11 +288,11 @@ class Sterling {
       if (steer.mag() > 0) {
         // First two lines of code below could be condensed with new PVector setMag() method
         // Not using this method until Processing.js catches up
-        // steer.setMag(maxspeed);
+        // steer.setMag(parameters.sterling.maxspeed);
   
         // Implement Reynolds: Steering = Desired - Velocity
         steer.normalize();
-        steer.mult(maxspeed);
+        steer.mult(parameters.sterling.maxspeed);
         steer.sub(this.velocity);
         steer.limit(maxforce);
       }

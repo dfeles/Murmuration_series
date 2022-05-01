@@ -17,8 +17,8 @@ class Murmuration {
 
     
     if(_line) {
-      for(var i = 0; i<this.sterlings.length; i+=nrLines){
-        var bird = this.sterlings[i]
+      for(var i = 0; i<this.sterlings.length; i+=parameters['boid']['nrLines']){
+        var bird = this.sterlings[floor(i)]
         //if(random()>0.8) {
             bird.renderLine();
       };

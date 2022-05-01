@@ -54,6 +54,8 @@ dashed: {
 var lastTheme = 'dashed';
 var preset = presets[lastTheme];
 
+
+
 var minStrokeWidth = ".1";
 var numberOfBirds = preset.numberOfBirds;
 var numberOfBirdsMin = 0;
@@ -67,6 +69,8 @@ var _line = true;
 var lineColor = "#000000";
 var _bird = true;
 var birdColor = preset.birdColor;
+
+
 var myTheme = ['dashed', 'bluePink', 'rainbow', 'dark'];
 var saveImage = false;
 var disco = false;
@@ -76,6 +80,40 @@ var dashed = preset.dashed;
 var fancyLine = preset.fancyLine;
 var fr = 30;
 var murmur = true;
+
+
+var parameters = {
+  background:true,
+  bgColor: preset.bgColor,
+  bgFader:1,
+  paused:false,
+  saveImage:function(){
+    saveCanvas("/img" + hour() + "-" + minute() + "-" + time + "png");
+    time++
+  },
+  boid: {
+    lineLength: 300,
+    nrLines:preset.nrLines,
+    strokeColor: preset.lineColor,
+    strokeWidthMin: .1,
+    strokeWidthMax: 5,
+    dashed: false,
+    fancy: false,
+    showDirection: false,
+    numberOfBirds: preset.numberOfBirds,
+    equality: 100,
+    murmur: true,
+    fractal: true,
+    fractalStrength: 10,
+    fractalZoom: 10
+  },
+  sterling: {
+    bird: true,
+    birdColor: preset.birdColor,
+    maxspeed: 1,
+  }
+
+}
 
 var equality = 100;
 var equalityMin = -100;
@@ -115,10 +153,44 @@ var lastNumberOfBirds = numberOfBirds;
 function setup() {
   frameRate(fr);
   
-  var gui = createGui('My awesome GUI');
-  gui.addGlobals('nrLines', 'numberOfBirds', '_background', 'bgColor', '_line', 'maxspeed', 'maxforce', 'desiredseparation', 'equality', 'equalityDirection');
-  if(typeof lineColor === 'string') gui.addGlobals('lineColor');
-  gui.addGlobals('myTheme', '_bird', 'birdColor', 'fr', 'saveImage', 'dashed', 'fancyLine', 'maxStrokeWidth', 'maxStrokePow', 'minStrokeWidth', 'fractal', 'fractalStrength', 'fractalZoom', 'disco', 'pause', 'murmur', 'showDirection', 'maxLineLength');
+
+  const gui = new dat.GUI();
+  gui.add(parameters, 'background');
+  gui.addColor(parameters, 'bgColor');
+  gui.add(parameters, 'bgFader', 0, 1);
+  gui.add(parameters, 'saveImage');
+  gui.add(parameters, 'paused');
+
+  let boid = gui.addFolder('Lines');
+  boid.add(parameters['boid'], 'lineLength', 1, 1000);
+  boid.add(parameters['boid'], 'nrLines', 1, 10);
+  boid.add(parameters['boid'], 'dashed');
+  boid.add(parameters['boid'], 'fancy');
+  boid.add(parameters['boid'], 'numberOfBirds', 0, 1000).onChange(updateBirdCount);
+  boid.addColor(parameters['boid'], 'strokeColor');
+  boid.add(parameters['boid'], 'strokeWidthMin', 0.0001, .5);
+  boid.add(parameters['boid'], 'strokeWidthMax', 0, 10);
+
+  let mechanism = gui.addFolder('Mechanism');
+  mechanism.add(parameters['boid'], 'equality', -100, 100);
+  mechanism.add(parameters['boid'], 'murmur');
+  mechanism.add(parameters['boid'], 'fractal');
+  mechanism.add(parameters['boid'], 'fractalStrength', 0, 100);
+  mechanism.add(parameters['boid'], 'fractalZoom', 0, 100);
+
+  mechanism.add(parameters['boid'], 'showDirection');
+
+  
+  var sterling = gui.addFolder('Sterling');
+  sterling.add(parameters['sterling'], 'bird')
+  sterling.addColor(parameters['sterling'], 'birdColor')
+  sterling.add(parameters['sterling'], 'maxspeed', .1, 5)
+
+
+  var gui2 = createGui('My awesome GUI');
+  gui2.addGlobals('nrLines', 'numberOfBirds', '_background', 'bgColor', '_line', 'maxspeed', 'maxforce', 'desiredseparation', 'equality', 'equalityDirection');
+  if(typeof lineColor === 'string') gui2.addGlobals('lineColor');
+  gui2.addGlobals('myTheme', '_bird', 'birdColor', 'fr', 'saveImage', 'dashed', 'fancyLine', 'maxStrokeWidth', 'maxStrokePow', 'minStrokeWidth', 'fractal', 'fractalStrength', 'fractalZoom', 'disco', 'pause', 'murmur', 'showDirection', 'maxLineLength');
   lineColor = preset.lineColor
   var cvs = createCanvas(1500, 900, P2D);
   
@@ -165,36 +237,13 @@ function draw() {
   maxforce = parseFloat(maxforce)
 
   center = createVector(width/2+sin(time/50)*150, height/2+cos(time/50)*150);
-  if(showDirection) {
+  if(parameters.boid.showDirection) {
     if (mouseIsPressed) center=createVector(mouseX, mouseY);
-    fill(birdColor)
+    fill("#ffffff");
     circle(center.x, center.y, 2)
   }
 
-  if(lastNumberOfBirds != numberOfBirds) {
-    if(lastNumberOfBirds < numberOfBirds) {
-      for(var i=0; i < numberOfBirds-lastNumberOfBirds; i++) {
 
-        murmuration.addSterling(new Sterling(center.x,center.y, i));
-      }
-    }
-
-    if(lastNumberOfBirds > numberOfBirds) {
-      for(var i=0; i < lastNumberOfBirds-numberOfBirds; i++) {
-
-        murmuration.removeSterling();
-      }
-    }
-
-    
-    // murmuration = new Murmuration();
-    // // Add an initial set of sterlings into the system
-    // for (var i = 0; i < numberOfBirds; i++) {
-    //   var index = murmuration.sterlings.length + i
-    //   murmuration.addSterling(new Sterling(width/2,height/2, index));
-    // }
-    lastNumberOfBirds = numberOfBirds
-  }
   
   if(!recording){
     //snoiseSeed(i);
@@ -207,13 +256,13 @@ function draw() {
     translate(mx, my);
     scale(sf);
     translate(-mx, -my);
-    if(_background) {
-      fill(bgColor);
+    if(parameters.background) {
+      let c = color(parameters.bgColor);
+      fill(red(c), green(c), blue(c), pow(parameters.bgFader,10) * 255);
       rect(0,0, width,height);
     }
     noFill();
     murmuration.run();
-    i+=.01;
   } 
   if(saveImage){
     saveCanvas("/img" + hour() + "-" + minute() + "-" + time + "png");
@@ -221,6 +270,23 @@ function draw() {
   }
 }
 
+function updateBirdCount(numberOfBirds) {
+  if(lastNumberOfBirds != numberOfBirds) {
+    if(lastNumberOfBirds <= numberOfBirds) {
+      for(var i=0; i < numberOfBirds-lastNumberOfBirds; i++) {
+        murmuration.addSterling(new Sterling(center.x,center.y, i));
+      }
+    }
+
+    if(lastNumberOfBirds > numberOfBirds) {
+      for(var i=0; i < lastNumberOfBirds-numberOfBirds; i++) {
+
+        murmuration.removeSterling();
+      }
+    }
+    lastNumberOfBirds = numberOfBirds
+  }
+}
 
 
 // window.addEventListener("wheel", function(e) {
@@ -237,7 +303,7 @@ function mouseClicked() {
 }
 function keyPressed() {
   if (keyCode === 32) {
-    pause = !pause;
+    parameters.paused = !parameters.paused;
   }
   if (keyCode === 66) {
     _background = !_background;
