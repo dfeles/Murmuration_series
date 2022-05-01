@@ -16,19 +16,16 @@ class Sterling {
         
       this.pastposs = [];
   
-      this.myRandom = pow(random(),2);
+      this.myRandom = pow(random(-1,1),2);
   
       // This is a new PVector method not yet implemented in JS
       // velocity = p5.Vector.random2D();
   
       // Leaving the code temporarily this way so that this example runs in JS
       var angle = random(TWO_PI);
-      this.velocity = createVector(cos(angle), sin(angle));
+      this.velocity = createVector(cos(angle), sin(angle)).mult(300);
   
       this.pos = createVector(x,y);
-      this.r = 2.0;
-      this.maxspeed = 1;
-      this.maxforce = 0.025;
       
       this.resetLineColor();
       
@@ -42,7 +39,9 @@ class Sterling {
           this.update();
       }
       //borders();
-      this.render();
+      if(_bird) {
+        this.render();
+      }
     }
     
     renderLine() {
@@ -50,10 +49,11 @@ class Sterling {
       if (this.pastposs.length<10) console.log("igen")
 
       noFill();
-      var strokeWidth = maxStrokeWidth*pow(this.myRandom,50)+minStrokeWidth;
+      var strokeWidth = maxStrokeWidth*pow(this.myRandom,50)+parseFloat(minStrokeWidth);
       strokeWeight(strokeWidth);
+      console.log(dashed);
       if(dashed) {
-        if(strokeWidth > .5){
+        if(strokeWidth > .01){
             drawingContext.setLineDash([strokeWidth*2, strokeWidth*4]);
         } else {
             drawingContext.setLineDash([0]);
@@ -120,14 +120,13 @@ class Sterling {
       // Reset accelertion to 0 each cycle
       this.acceleration.mult(0);
   
-      var mult = 50;
       var dir = p5.Vector.sub(center, this.pos);  
       dir.normalize();   //process that changes the range of pixel intensity values                     
       dir.mult(0.1);                         
       this.acceleration = dir;                              
   
       this.velocity.add(this.acceleration);
-      this.velocity.limit(this.maxspeed);
+      this.velocity.limit(maxspeed);
       
       if(fractal) this.addPerlin()
       this.pos.add(this.velocity);
@@ -137,7 +136,7 @@ class Sterling {
   
       if (this.index % 1 == 0) {
         append(this.pastposs, this.pos.copy());
-        if (this.pastposs.length > 200) {
+        if (this.pastposs.length > maxLineLength) {
           this.pastposs.splice(0,1);
         }
       }
@@ -153,7 +152,8 @@ class Sterling {
   
       var z = time/10
   
-      var _noise = noise(x,y,z)*noise(x,y,z)-0.5
+      var _noise = (noise(x,y,z)-.5)*2
+      // _noise = pow(_noise, 2)
   
       this.velocity.rotate( _noise*fractalStrength/30 );
     }
@@ -162,12 +162,12 @@ class Sterling {
       var desired = p5.Vector.sub(target, this.pos);  // A vector pointing from the pos to the target
       // Scale to maximum speed
       desired.normalize();
-      desired.mult(this.maxspeed);
+      desired.mult(maxspeed);
   
   
       // Steering = Desired minus Velocity
       var steer = p5.Vector.sub(desired, this.velocity);
-      steer.limit(this.maxforce);  // Limit to maximum steering force
+      steer.limit(maxforce);  // Limit to maximum steering force
       return steer;
     }
   
@@ -175,7 +175,7 @@ class Sterling {
   
   
       var theta = this.velocity.heading() + radians(90);
-      
+
       noFill();
       strokeWeight(1)
       stroke(this.strokeColor);
@@ -203,7 +203,7 @@ class Sterling {
     // Method checks for nearby sterlings and steers away
     separate (sterlings) {
       //separate
-      var desiredseparation = 100.0;
+
       var steer = createVector(0, 0, 0);
       var countSeparate = 0;
   
@@ -262,10 +262,10 @@ class Sterling {
         // sum.setMag(maxspeed);
   
         // Implement Reynolds: Steering = Desired - Velocity
-        sum.normalize();
-        sum.mult(this.maxspeed);
+        // sum.normalize();
+        sum.mult(maxspeed);
         var steer2 = p5.Vector.sub(sum, this.velocity);
-        steer2.limit(this.maxforce);
+        steer2.limit(maxforce);
   
         steer2.mult(alMult);
         steer.add(steer2);
@@ -284,9 +284,9 @@ class Sterling {
   
         // Implement Reynolds: Steering = Desired - Velocity
         steer.normalize();
-        steer.mult(this.maxspeed);
+        steer.mult(maxspeed);
         steer.sub(this.velocity);
-        steer.limit(this.maxforce);
+        steer.limit(maxforce);
       }
       return steer;
     }

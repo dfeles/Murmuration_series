@@ -1,4 +1,3 @@
-var center;
 
 var time = 0;
 // The Murmuration (a list of Sterling objects)
@@ -16,18 +15,15 @@ class Murmuration {
 
     console.log(mouseX,(mouseX - displayWidth/2))
     //center = createVector(width/2+sin(this.index%2*4*PI/4+time/100)*100*sin(time/20), height/2+cos(this.index%2*4*PI/4+time/100)*100*cos(time/20));
-    center = mouseIsPressed ? createVector(mouseX, mouseY) : createVector(width/2+sin(time/50)*150, height/2+cos(time/50)*150);
-    if(showDirection | mouseIsPressed) {
-      fill(birdColor)
-      circle(center.x, center.y, 2)
-    }
-    
-    for(var i = 0; i<this.sterlings.length; i+=nrLines){
-      var bird = this.sterlings[i]
-      //if(random()>0.8) {
-          bird.renderLine();
 
-    };
+    
+    if(_line) {
+      for(var i = 0; i<this.sterlings.length; i+=nrLines){
+        var bird = this.sterlings[i]
+        //if(random()>0.8) {
+            bird.renderLine();
+      };
+    }
 
     this.sterlings.forEach(function(bird){
       bird.run(this.sterlings); 
@@ -38,6 +34,9 @@ class Murmuration {
 
   addSterling(b) {
     append(this.sterlings,b);
+  }
+  removeSterling() {
+    this.sterlings.shift();
   }
 
   record() {
