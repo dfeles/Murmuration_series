@@ -15,6 +15,7 @@ class Sterling {
       this.index = i;
         
       this.pastposs = [];
+      this.maxforce = .025;
   
       this.myRandom = pow(random(-1,1),2);
   
@@ -102,7 +103,7 @@ class Sterling {
         this.strokeColor = parameters.boid.strokeColor
       } else {
         this.strokeColor = lineColor[(this.index + floor(this.myRandom*10)) % lineColor.length]
-        if(disco) {
+        if(parameters.boid.disco) {
           this.strokeColor = lineColor[floor(random(lineColor.length))]
         }
       }
@@ -177,7 +178,7 @@ class Sterling {
   
       // Steering = Desired minus Velocity
       var steer = p5.Vector.sub(desired, this.velocity);
-      steer.limit(maxforce);  // Limit to maximum steering force
+      steer.limit(this.maxforce);  // Limit to maximum steering force
       return steer;
     }
   
@@ -239,7 +240,7 @@ class Sterling {
 
         var d = p5.Vector.dist(pos, other.pos);
         // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
-        if ((d > 0) && (d < desiredseparation)) {
+        if ((d > 0) && (d < 10)) {
           // Calculate vector pointing away from neighbor
           var diff = p5.Vector.sub(pos, other.pos);
           diff.normalize();
@@ -273,7 +274,7 @@ class Sterling {
         // sum.normalize();
         sum.mult(parameters.sterling.maxspeed);
         var steer2 = p5.Vector.sub(sum, this.velocity);
-        steer2.limit(maxforce);
+        steer2.limit(this.maxforce);
   
         steer2.mult(alMult);
         steer.add(steer2);
@@ -294,7 +295,7 @@ class Sterling {
         steer.normalize();
         steer.mult(parameters.sterling.maxspeed);
         steer.sub(this.velocity);
-        steer.limit(maxforce);
+        steer.limit(this.maxforce);
       }
       return steer;
     }

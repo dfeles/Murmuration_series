@@ -57,7 +57,7 @@ var preset = presets[lastTheme];
 
 
 var minStrokeWidth = ".1";
-var numberOfBirds = preset.numberOfBirds;
+var numberOfBirds = 300;
 var numberOfBirdsMin = 0;
 var numberOfBirdsMax = 1000;
 var nrLines = preset.nrLines;
@@ -99,6 +99,7 @@ var parameters = {
     strokeWidthMax: 5,
     dashed: false,
     fancy: false,
+    disco: false,
     showDirection: false,
     numberOfBirds: preset.numberOfBirds,
     equality: 100,
@@ -115,39 +116,6 @@ var parameters = {
 
 }
 
-var equality = 100;
-var equalityMin = -100;
-var equalityMax = 100;
-
-var maxspeed = "1";
-var maxforce = "0.025";
-var desiredseparation = 100;
-var desiredseparationMin = 1;
-var desiredseparationMax = 3000;
-
-var maxStrokeWidth = preset.maxStrokeWidth;
-var maxStrokeWidthMin = 1;
-var maxStrokeWidthMax = 100;
-
-var strokePow = preset.maxStrokePow;
-var strokePowMin = 1;
-var strokePowMax = 100;
-
-var fractal = true;
-var fractalStrength = preset.fractalStrength;
-var fractalStrengthMin = 1;
-var fractalStrengthMax = 50;
-
-var fractalZoom = preset.fractalZoom;
-var fractalZoomMin = 1;
-var fractalZoomMax = 50;
-
-
-var maxLineLength = 200;
-var maxLineLengthMin = 1;
-var maxLineLengthMax = 1000;
-
-var lastNumberOfBirds = numberOfBirds;
 
   
 function setup() {
@@ -166,6 +134,7 @@ function setup() {
   boid.add(parameters['boid'], 'nrLines', 1, 10);
   boid.add(parameters['boid'], 'dashed');
   boid.add(parameters['boid'], 'fancy');
+  boid.add(parameters['boid'], 'disco');
   boid.add(parameters['boid'], 'numberOfBirds', 0, 1000).onChange(updateBirdCount);
   boid.addColor(parameters['boid'], 'strokeColor');
   boid.add(parameters['boid'], 'strokeWidthMin', 0.0001, .5);
@@ -187,10 +156,10 @@ function setup() {
   sterling.add(parameters['sterling'], 'maxspeed', .1, 5)
 
 
-  var gui2 = createGui('My awesome GUI');
-  gui2.addGlobals('nrLines', 'numberOfBirds', '_background', 'bgColor', '_line', 'maxspeed', 'maxforce', 'desiredseparation', 'equality', 'equalityDirection');
-  if(typeof lineColor === 'string') gui2.addGlobals('lineColor');
-  gui2.addGlobals('myTheme', '_bird', 'birdColor', 'fr', 'saveImage', 'dashed', 'fancyLine', 'maxStrokeWidth', 'maxStrokePow', 'minStrokeWidth', 'fractal', 'fractalStrength', 'fractalZoom', 'disco', 'pause', 'murmur', 'showDirection', 'maxLineLength');
+  // var gui2 = createGui('My awesome GUI');
+  // gui2.addGlobals('nrLines', 'numberOfBirds', '_background', 'bgColor', '_line', 'maxspeed', 'maxforce', 'desiredseparation', 'equality', 'equalityDirection');
+  // if(typeof lineColor === 'string') gui2.addGlobals('lineColor');
+  // gui2.addGlobals('myTheme', '_bird', 'birdColor', 'fr', 'saveImage', 'dashed', 'fancyLine', 'maxStrokeWidth', 'maxStrokePow', 'minStrokeWidth', 'fractal', 'fractalStrength', 'fractalZoom', 'disco', 'pause', 'murmur', 'showDirection', 'maxLineLength');
   lineColor = preset.lineColor
   var cvs = createCanvas(1500, 900, P2D);
   
@@ -218,23 +187,9 @@ function draw() {
   if(lastTheme != myTheme) {
     preset = presets[myTheme];
 
-    numberOfBirds = preset.numberOfBirds;
-    nrLines = preset.nrLines;
-    bgColor = preset.bgColor;
-    birdColor = preset.birdColor;
-    lineColor = preset.lineColor
-    dashed = preset.dashed;
-    fancyLine = preset.fancyLine;
-    maxStrokeWidth = preset.maxStrokeWidth;
-    fractalZoom = preset.fractalZoom;
-    fractalStrength = preset.fractalStrength;
-    lastNumberOfBirds = numberOfBirds;
-    fractalZoom = preset.fractalZoom;
-    strokePow = preset.strokePow;
+    lastNumberOfBirds = parameters.boid.numberOfBirds;
     lastTheme = myTheme;
   }
-  maxspeed = parseFloat(maxspeed)
-  maxforce = parseFloat(maxforce)
 
   center = createVector(width/2+sin(time/50)*150, height/2+cos(time/50)*150);
   if(parameters.boid.showDirection) {
