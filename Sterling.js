@@ -29,11 +29,13 @@ class Sterling {
       this.pos = createVector(x,y);
       
       this.resetLineColor();
+      this.myNoise = 0;
       
       this.i = 0;
     }
   
     run(sterlings) {
+      this.strokeWidth = parameters.boid.strokeWidthMax*pow(this.myRandom,50)+parameters.boid.strokeWidthMin;
       this.updateEquality();
       this.resetLineColor();
       if (!parameters.paused) {
@@ -50,11 +52,10 @@ class Sterling {
       
 
       noFill();
-      var strokeWidth = parameters.boid.strokeWidthMax*pow(this.myRandom,50)+parameters.boid.strokeWidthMin;
-      strokeWeight(strokeWidth);
+      strokeWeight(this.strokeWidth);
       if(parameters.boid.dashed) {
-        if(strokeWidth > .01){
-            drawingContext.setLineDash([strokeWidth*2, strokeWidth*4]);
+        if(this.strokeWidth > .01){
+            drawingContext.setLineDash([this.strokeWidth*2, this.strokeWidth*4]);
         } else {
             drawingContext.setLineDash([0]);
         }
@@ -67,6 +68,7 @@ class Sterling {
       var t = 0
       var lastP;
       var strokeColor = this.strokeColor;
+      var strokeWidth = this.strokeWidth;
       stroke(this.strokeColor)
       this.pastposs.forEach(function(p){
         if(lastP){
@@ -100,12 +102,19 @@ class Sterling {
   
     resetLineColor() {
       if(typeof lineColor === 'string') {
-        this.strokeColor = parameters.boid.strokeColor
+        this.strokeColor = color(parameters.boid.strokeColor)
+        this.strokeColor.setAlpha(parameters.boid.strokeAlpha*255)
       } else {
         this.strokeColor = lineColor[(this.index + floor(this.myRandom*10)) % lineColor.length]
         if(parameters.boid.disco) {
           this.strokeColor = lineColor[floor(random(lineColor.length))]
+
         }
+      }
+      if(parameters.boid.disco) { 
+        // this.strokeColor.setAlpha(floor(random()*255)%2*255)
+        var str=parameters.boid.strokeWidthMax*pow(this.myRandom,50)+parameters.boid.strokeWidthMin
+        this.strokeWidth = str + this.myNoise*parameters.boid.disco
       }
     };
 
@@ -163,10 +172,10 @@ class Sterling {
   
       var z = time/10
   
-      var _noise = (noise(x,y,z)-.5)*2
+      this.myNoise = (noise(x,y,z)-.5)*2*parameters.boid.fractalStrength/30 * (this.myWeightedRandom)
       // _noise = pow(_noise, 2)
   
-      this.velocity.rotate( _noise*parameters.boid.fractalStrength/30 * (this.myWeightedRandom)) ;
+      this.velocity.rotate(this.myNoise);
     }
   
     seek(target) {

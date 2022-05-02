@@ -73,7 +73,7 @@ var birdColor = preset.birdColor;
 
 var myTheme = ['dashed', 'bluePink', 'rainbow', 'dark'];
 var saveImage = false;
-var disco = false;
+var disco = 0;
 var pause = false;
 var showDirection = false;
 var dashed = preset.dashed;
@@ -95,11 +95,12 @@ var parameters = {
     lineLength: 300,
     nrLines:preset.nrLines,
     strokeColor: preset.lineColor,
+    strokeAlpha: 1,
     strokeWidthMin: .1,
     strokeWidthMax: 5,
     dashed: false,
     fancy: false,
-    disco: false,
+    disco: 0,
     showDirection: false,
     numberOfBirds: preset.numberOfBirds,
     equality: 100,
@@ -130,13 +131,14 @@ function setup() {
   gui.add(parameters, 'paused');
 
   let boid = gui.addFolder('Lines');
-  boid.add(parameters['boid'], 'lineLength', 1, 1000);
+  boid.add(parameters['boid'], 'lineLength', 3, 1000);
   boid.add(parameters['boid'], 'nrLines', 1, 10);
   boid.add(parameters['boid'], 'dashed');
   boid.add(parameters['boid'], 'fancy');
-  boid.add(parameters['boid'], 'disco');
+  boid.add(parameters['boid'], 'disco', 0, 1);
   boid.add(parameters['boid'], 'numberOfBirds', 0, 1000).onChange(updateBirdCount);
   boid.addColor(parameters['boid'], 'strokeColor');
+  boid.add(parameters['boid'], 'strokeAlpha', 0.01, 1);
   boid.add(parameters['boid'], 'strokeWidthMin', 0.0001, .5);
   boid.add(parameters['boid'], 'strokeWidthMax', 0, 10);
 
