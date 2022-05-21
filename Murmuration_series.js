@@ -41,7 +41,7 @@ dashed: {
   numberOfBirds: 300,
   nrLines: 1,
   bgColor: '#1c1c22',
-  lineColor: '#4d4b42',
+  lineColor: '#ffffff',
   birdColor: '#f0dc00',
   fractalStrength: 19,
   fractalZoom: 10,
@@ -93,7 +93,7 @@ var parameters = {
     time++
   },
   boid: {
-    lineLength: 300,
+    lineLength: 100,
     nrLines:preset.nrLines,
     strokeColor: preset.lineColor,
     strokeAlpha: 1,
@@ -110,7 +110,7 @@ var parameters = {
     fractalZoom: 10
   },
   sterling: {
-    bird: true,
+    bird: false,
     birdColor: preset.birdColor,
     maxspeed: 1,
   }
