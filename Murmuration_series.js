@@ -87,6 +87,7 @@ var parameters = {
   bgColor: preset.bgColor,
   bgFader:1,
   paused:false,
+  numberOfBirds: preset.numberOfBirds,
   saveImage:function(){
     saveCanvas("/img" + hour() + "-" + minute() + "-" + time + "png");
     time++
@@ -102,7 +103,6 @@ var parameters = {
     fancy: false,
     disco: 0,
     showDirection: false,
-    numberOfBirds: preset.numberOfBirds,
     equality: 100,
     murmur: true,
     fractal: true,
@@ -129,6 +129,7 @@ function setup() {
   gui.add(parameters, 'bgFader', 0, 1);
   gui.add(parameters, 'saveImage');
   gui.add(parameters, 'paused');
+  gui.add(parameters, 'numberOfBirds', 0, 500).onChange(updateBirdCount);
 
   let boid = gui.addFolder('Lines');
   boid.add(parameters['boid'], 'lineLength', 3, 1000);
@@ -136,7 +137,6 @@ function setup() {
   boid.add(parameters['boid'], 'dashed');
   boid.add(parameters['boid'], 'fancy');
   boid.add(parameters['boid'], 'disco', 0, 1);
-  boid.add(parameters['boid'], 'numberOfBirds', 0, 1000).onChange(updateBirdCount);
   boid.addColor(parameters['boid'], 'strokeColor');
   boid.add(parameters['boid'], 'strokeAlpha', 0.01, 1);
   boid.add(parameters['boid'], 'strokeWidthMin', 0.0001, .5);
@@ -189,7 +189,7 @@ function draw() {
   if(lastTheme != myTheme) {
     preset = presets[myTheme];
 
-    lastNumberOfBirds = parameters.boid.numberOfBirds;
+    lastNumberOfBirds = parameters.numberOfBirds;
     lastTheme = myTheme;
   }
 
@@ -231,7 +231,8 @@ function updateBirdCount(numberOfBirds) {
   if(lastNumberOfBirds != numberOfBirds) {
     if(lastNumberOfBirds <= numberOfBirds) {
       for(var i=0; i < numberOfBirds-lastNumberOfBirds; i++) {
-        murmuration.addSterling(new Sterling(center.x,center.y, i));
+        // murmuration.addSterling(new Sterling(center.x,center.y, i));
+        murmuration.addSterling(new Sterling(width/2,height/2, i));
       }
     }
 
