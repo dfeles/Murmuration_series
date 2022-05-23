@@ -38,7 +38,7 @@ dark: {
   fancyLine: false
 },
 dashed: {
-  numberOfBirds: 300,
+  numberOfBirds: 500,
   nrLines: 1,
   bgColor: '#1c1c22',
   lineColor: '#ffffff',
