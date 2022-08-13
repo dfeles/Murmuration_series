@@ -117,13 +117,17 @@ var parameters = {
 
 }
 
+let mic;
+let fft;
 
-  
 function setup() {
   frameRate(fr);
-  
+
 
   const gui = new dat.GUI();
+  gui.close();
+  
+
   gui.add(parameters, 'background');
   gui.addColor(parameters, 'bgColor');
   gui.add(parameters, 'bgFader', 0, 1);
@@ -173,6 +177,11 @@ function setup() {
     murmuration.addSterling(new Sterling(width/2,height/2, i));
   }
   
+  mic = new p5.AudioIn();
+  mic.start();
+
+  fft = new p5.FFT();
+  fft.setInput(mic);
 }
 
 
@@ -185,7 +194,24 @@ let mx, my;
 var center;
 
 
+function windowResized() {
+  fillScreen();
+}
+function fillScreen() {
+  const css = getComputedStyle(canvas.parentElement),
+  marginWidth  = round( float(css.marginLeft) + float(css.marginRight)  ),
+  marginHeight = round( float(css.marginTop)  + float(css.marginBottom) ),
+  w = windowWidth - marginWidth, h = windowHeight - marginHeight;
+  
+  resizeCanvas(w, h, true);
+}
+
+var frameCount = 0;
 function draw() {
+
+  if(frameCount == 5) fillScreen();
+  frameCount++;
+  
   if(lastTheme != myTheme) {
     preset = presets[myTheme];
 
@@ -219,7 +245,11 @@ function draw() {
       rect(0,0, width,height);
     }
     noFill();
-    murmuration.run();
+    
+
+    let spectrum = fft.analyze();
+    console.log(mic.getLevel())
+    murmuration.run(spectrum);
   } 
   if(saveImage){
     saveCanvas("/img" + hour() + "-" + minute() + "-" + time + "png");

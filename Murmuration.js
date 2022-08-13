@@ -2,6 +2,7 @@
 var time = 0;
 // The Murmuration (a list of Sterling objects)
 
+
 class Murmuration {
 
   constructor() {
@@ -9,10 +10,9 @@ class Murmuration {
     this.records = 0;
     this.distances = [];
   }
+  run(fft) {
 
-  run() {
     time++;
-
     //center = createVector(width/2+sin(this.index%2*4*PI/4+time/100)*100*sin(time/20), height/2+cos(this.index%2*4*PI/4+time/100)*100*cos(time/20));
 
     
