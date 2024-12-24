@@ -37,72 +37,99 @@ class Murmuration {
   removeSterling() {
     this.sterlings.shift();
   }
-
   record() {
-    var svg = createGraphics(1920, 1080, SVG, "o"+records+".svg");
-    records++;
-    stroke(255);
-    noFill();
-    svg.beginDraw();
-    this.sterlings.forEach(function(b){
-      //if(b.index % 4 != 0) continue;
-  
-      svg.beginShape();
-      svg.noFill();
-      var n=0;
-      if(b.index % 84 == 0) {
-        
-        svg.stroke(255,255,255,255);
-        svg.strokeWeight(.1);
-      } else if(b.index % 80 == 0) {
-        
-        svg.stroke(255,255,255,200);
-        svg.strokeWeight(.1);
-      } else if(b.index % 80 == 0) {
-        
-        svg.stroke(255,255,255,150);
-        svg.strokeWeight(.1);
-      } else if(b.index % 80 == 0) {
-        
-        svg.stroke(255,255,255,100);
-        svg.strokeWeight(.1);
-      } else {
-        
-          svg.stroke(255,255,255,50);
-          svg.strokeWeight(.1);
+    // Calculate bounding box of all paths
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    for(let i = 0; i < this.sterlings.length; i+=parameters['boid']['nrLines']) {
+      let bird = this.sterlings[floor(i)];
+      let history = bird.pastposs;
+      
+      for(let j = 0; j < history.length; j++) {
+        minX = Math.min(minX, history[j].x);
+        minY = Math.min(minY, history[j].y); 
+        maxX = Math.max(maxX, history[j].x);
+        maxY = Math.max(maxY, history[j].y);
       }
+    }
+    
+    // Add some padding
+    let padding = 10;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+    
+    let svgWidth = maxX - minX;
+    let svgHeight = maxY - minY;
+    
+    let svgHeader = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n';
+    svgHeader += '<svg xmlns="http://www.w3.org/2000/svg" ';
+    svgHeader += 'width="' + (svgWidth * 3) + '" height="' + (svgHeight * 3) + '" ';
+    svgHeader += 'viewBox="' + minX + ' ' + minY + ' ' + svgWidth + ' ' + svgHeight + '">\n';
+    
+    // Add white background
+    let bgContent = '<rect x="' + minX + '" y="' + minY + '" ';
+    bgContent += 'width="' + svgWidth + '" height="' + svgHeight + '" ';
+    bgContent += 'fill="white"/>\n';
+    
+    let pathsContent = '<g id="paths">\n';
+    let arrowheadsContent = '<g id="arrowheads">\n';
+    
+    // Draw each line
+    for(let i = 0; i < this.sterlings.length; i+=parameters['boid']['nrLines']) {
+      let bird = this.sterlings[floor(i)];
       
-      b.pastposs.forEach(function(pos){
-        n++;
-        svg.vertex(pos.x, pos.y);
-      })
-      svg.endShape();
-    })
-    
-      svg.pushMatrix();
-    this.sterlings.forEach(function(b){
-  
-      var theta = b.velocity.heading2D() + radians(90);
-    
-      svg.pushMatrix();
-      svg.translate(b.pos.x, b.pos.y);
-      svg.rotate(theta);
-      svg.beginShape();
-      svg.noFill();
-      svg.stroke(255);
-      svg.vertex(-1, .5);
-      svg.vertex(0, -.2);
-      svg.vertex(+1, .5);
+      // Get positions from bird's history
+      let pos = bird.pos;
+      let history = bird.pastposs;
       
-      svg.endShape();
-      
-      svg.popMatrix();
-    })
+      // Create path for the line
+      if (history.length > 1) {
+        // Draw the main path
+        pathsContent += '  <path d="M';
+        pathsContent += history[0].x + ',' + history[0].y + ' L';
+        
+        for(let j = 1; j < history.length; j++) {
+          pathsContent += history[j].x + ',' + history[j].y + ' ';
+        }
+        
+        pathsContent += '" fill="none" ';
+        pathsContent += 'stroke="' + parameters['boid']['strokeColor'] + '" ';
+        pathsContent += 'stroke-width="' + parameters['boid']['strokeWidthMin'] + '" ';
+        pathsContent += 'opacity="' + parameters['boid']['strokeAlpha'] + '" ';
+        pathsContent += 'fill-rule="nonzero"/>\n';
+
+        // Add arrowhead triangle at the end
+        let lastPoint = history[history.length-1];
+        let secondLastPoint = history[history.length-2];
+        
+        // Calculate angle of line end
+        let angle = Math.atan2(lastPoint.y - secondLastPoint.y, lastPoint.x - secondLastPoint.x);
+        
+        // Calculate triangle points
+        let x1 = lastPoint.x - 2 * Math.cos(angle - Math.PI/6);
+        let y1 = lastPoint.y - 2 * Math.sin(angle - Math.PI/6);
+        let x2 = lastPoint.x - 2 * Math.cos(angle + Math.PI/6);
+        let y2 = lastPoint.y - 2 * Math.sin(angle + Math.PI/6);
+        
+        arrowheadsContent += '  <path d="M' + lastPoint.x + ',' + lastPoint.y + ' L';
+        arrowheadsContent += x1 + ',' + y1 + ' L';
+        arrowheadsContent += x2 + ',' + y2 + ' Z" ';
+        arrowheadsContent += 'fill="' + parameters['boid']['strokeColor'] + '" ';
+        arrowheadsContent += 'opacity="' + parameters['boid']['strokeAlpha'] + '"/>\n';
+      }
+    }
     
-    svg.popMatrix();
+    pathsContent += '</g>\n';
+    arrowheadsContent += '</g>\n';
+    let svgFooter = '</svg>';
+    let svg = svgHeader + bgContent + pathsContent + arrowheadsContent + svgFooter;
     
-    svg.endDraw();
-    recording = false;
-    println(svg);
+    // Save the SVG file
+    let filename = 'murmuration_' + year() + month() + day() + '_' + hour() + minute() + second() + '.svg';
+    save([svg], filename, 'svg');
+
+    console.log(svg);
   }
 }

@@ -25,11 +25,24 @@ rainbow: {
   fancyLine: true
 },
 dark: {
-  numberOfBirds: 600,
+  numberOfBirds: 1000,
   nrLines: 1,
   bgColor: '#110303',
   lineColor: '#ffffff',
   birdColor: '#ffffff',
+  fractalStrength: 5,
+  fractalZoom: 10,
+  maxStrokeWidth: 5,
+  maxStrokePow: 50,
+  dashed: false,
+  fancyLine: false
+},
+light: {
+  numberOfBirds: 2000,
+  nrLines: 1,
+  bgColor: '#fdfefe',
+  lineColor: '#151533',
+  birdColor: '#000000',
   fractalStrength: 5,
   fractalZoom: 10,
   maxStrokeWidth: 5,
@@ -51,7 +64,7 @@ dashed: {
   fancyLine: false
 }}
 
-var lastTheme = 'dashed';
+var lastTheme = 'light';
 var preset = presets[lastTheme];
 
 
@@ -89,7 +102,8 @@ var parameters = {
   paused:false,
   numberOfBirds: preset.numberOfBirds,
   saveImage:function(){
-    saveCanvas("/img" + hour() + "-" + minute() + "-" + time + "png");
+    // saveCanvas("/img" + hour() + "-" + minute() + "-" + time + "png");
+    murmuration.record();
     time++
   },
   boid: {
@@ -248,7 +262,7 @@ function draw() {
     
 
     let spectrum = fft.analyze();
-    console.log(mic.getLevel())
+    // console.log(mic.getLevel())
     murmuration.run(spectrum);
   } 
   if(saveImage){
@@ -290,6 +304,7 @@ function mouseClicked() {
   //saveImage = true;
 }
 function keyPressed() {
+  console.log(keyCode)
   if (keyCode === 32) {
     parameters.paused = !parameters.paused;
   }
